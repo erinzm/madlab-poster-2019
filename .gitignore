@@ -1,5 +1,6 @@
 # output
 *.pdf
+*.synctex.gz
 
 # intermediate files
 *.aux
@@ -10,3 +11,6 @@
 *.out
 *.snm
 *.toc
+*.bcf
+*.run.xml
+*.xdv
