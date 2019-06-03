@@ -17,8 +17,9 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{amsmath}
-\usepackage[backend=biber, style=trad-plain]{biblatex}
+\usepackage[backend=biber,maxcitenames=4,maxbibnames=99,giveninits=false]{biblatex}
 \usepackage{xcolor}
+\usepackage{siunitx}
 \setbeamertemplate{theorems}[numbered] % to number
 
 \addbibresource{poster.bib}
@@ -64,7 +65,7 @@
 \addtobeamertemplate{headline}{}
 {
     \begin{tikzpicture}[remember picture,overlay]
-    \node [anchor=north east, inner sep=3cm] at ([xshift=1.4cm,yshift=1.9cm]current page.north east)     {\includegraphics[height=6.5cm]{fig/black-flush-UWlogo-print.eps}};
+    \node [anchor=north east, inner sep=2cm] at ([xshift=1.4cm,yshift=1.4cm]current page.north east)     {\includegraphics[height=6.5cm]{fig/black-flush-UWlogo-print.eps}};
     \end{tikzpicture}
 }
 % ====================
@@ -77,19 +78,18 @@
 \begin{columns}[t]
 \separatorcolumn
 
-\begin{column}{\colwidth}
+\begin{column}{.6\colwidth}
   \begin{block}{Overview}
-    Adversarial attacks attempt to confound machine learning systems. By changing the input to a classifier slightly -- for instance, changing a few pixels of an image -- the output classification can be manipulated.
-    These changes can be made very insignificant, remaining imperceptible to a human observer.
+    Adversarial attacks attempt to confound machine learning systems. By changing the input to a classifier slightly -- for instance, tweaking image pixels -- the output classification can be manipulated.
 
     Throughout the literature on attacking image classifiers, the \emph{visibility} of attacks to a human observer (who might become \emph{suspicious}, which we wish to avoid) is typically gauged by a $p$-norm of the difference between the original and modified image.
 
     However, this has not been previously justified as an accurate model of human behavior.
-    Via behavioral experiments, we show that \textbf{human perception of image modifications is not well-described by \emph{any} $p$-norm, nor several alternative measures}.
+    Via behavioral experiments, we show\cite{sen2019perception} that \textbf{human perception of image modifications is not well-described by \emph{any} $p$-norm, nor several alternative measures}.
     This has significant impact on adversarial ML research; the robustness of attacks to human inspection relies on an accurate understanding of \emph{what humans will and will not see as "tampering"}.
 
     \begin{figure}
-      \includegraphics[width=.5\linewidth]{fig/intro_image-figure0.eps}
+      \includegraphics[width=.8\linewidth]{fig/intro_image-figure0.eps}
       \caption{Current research assumes a $p$-norm decision boundary (grey) on whether an image has been tampered with. The true human decision boundary (green) may be very different.}
       \label{fig:decision_boundary}
     \end{figure}
@@ -106,8 +106,12 @@
 
     We refute this assumption via \emph{testable implications}.
   \end{alertblock}
+\end{column}
 
-  \begin{block}{A weak implication}
+\separatorcolumn
+
+\begin{column}{\colwidth}
+    \begin{block}{A weak implication}
     We define $J(\bfx_0) = \{\bfx \subset \X : \norm{\bfx_0-\bfx}_p = r(\bfx_0)\}$ as the set of all images just-noticeably-different from the base image $\bfx_0$.
 
     \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
@@ -116,11 +120,6 @@
 
     We can ask humans when they 'just notice' changes to an image and compare these judgments across $\bfx_1$, $\bfx_2$ pairs, but this implication is still \emph{weak} as a statistical test; it \emph{requires knowledge of the true $p^*$}.
   \end{block}
-\end{column}
-
-\separatorcolumn
-
-\begin{column}{\colwidth}
 
   \begin{block}{A stronger implication}
     Throughout our experiments, we generate images as in Figure~\ref{fig:decision_boundary};
@@ -146,7 +145,7 @@
     Eight rays are specially-crafted $\pm1$-perturbation directions varying in size, number of color channels affected, and shape of perturbed pixels.
     Two additional rays are adversarially generated via Fast Gradient Sign Method and Projected Gradient Descent.
 
-    68 Amazon Mechanical Turk workers were presented with instructins and then completed a sequence of 34 trials, 30 of which were $\pm1$-perturbation or adversarial trials,
+    68 Amazon Mechanical Turk workers were presented with instructions and then completed a sequence of 34 trials, 30 of which were $\pm1$-perturbation or adversarial trials,
     and 4 of which were "guard trials", with an abrupt change to filter out participants clicking through without performing the task.
 
     \begin{figure}
@@ -170,12 +169,39 @@
 
 \separatorcolumn
 
-\begin{column}{\colwidth}
+\begin{column}{1.4\colwidth}
 
   \begin{block}{Results}
-    We used a non-parametric Kolmogorov-Smirnov distribution test to test both implications.
+    Since our participants were not ideal observers, we treat the pool of all returned responses for some $(\bfx_0, \bfv)$ pair as a sample.
+    We perform hypothesis tests on the implications over these samples, using the Kolmogorov-Smirnov non-parametric test. $x_1^{(j)}$ is the first noticably modified image using perturbation direction $\bfv_1$ and according to participant $j$.
+
+
+    Testing the weaker implication: \textbf{1, 2, $\infty$-norms do not accurately describe our data.}
     \begin{table}
-      \caption{Performed tests & $p$ values (\textbf{stats $p$}, not norm $p$)}
+      \centering
+      \begin{tabular}{l l}
+        \toprule
+        \textbf{H\textsubscript{0}} & \textbf{\textit{p}} \\
+        \midrule
+        $\norm{\bfx_1^{(j)} - \bfx_0}_1$, $\norm{\bfx_2^{(j)} - \bfx_0}_1$ have same dist. & \num{6.4e-19} \\
+        $\norm{\bfx_1^{(j)} - \bfx_0}_2$, $\norm{\bfx_2^{(j)} - \bfx_0}_2$ have same dist. & \num{2.6e-16} \\
+        $\norm{\bfx_1^{(j)} - \bfx_0}_\infty$, $\norm{\bfx_2^{(j)} - \bfx_0}_\infty$ have same dist. & \num{1.1e-14} \\
+      \end{tabular}
+      \caption{Test hypotheses and $p$ values. Note that each test uses different $\bfx_0$, $\bfv_1$, $\bfv_2$.}
+    \end{table}
+
+    Testing the stronger implication: \textbf{no $p$-norm accurately fits the human responses.}
+    \begin{table}
+      \centering
+      \begin{tabular}{l l}
+        \toprule
+        \textbf{H\textsubscript{0}} & \textbf{\textit{p}} \\
+        \midrule
+        $\norm{\bfx_1^{(j)} - \bfx_0}_1$, $\norm{\bfx_2^{(j)} - \bfx_0}_1$ have same dist. & \num{6.4e-19} \\
+        $\norm{\bfx_1^{(j)} - \bfx_0}_2$, $\norm{\bfx_2^{(j)} - \bfx_0}_2$ have same dist. & \num{2.6e-16} \\
+        $\norm{\bfx_1^{(j)} - \bfx_0}_\infty$, $\norm{\bfx_2^{(j)} - \bfx_0}_\infty$ have same dist. & \num{1.1e-14} \\
+      \end{tabular}
+      \caption{Test hypotheses and $p$ values. Note that each test uses different $\bfx_0$, $\bfv_1$, $\bfv_2$.}
     \end{table}
   \end{block}
 
@@ -205,7 +231,6 @@
 
   \begin{block}{References}
     \footnotesize{\printbibliography}
-
   \end{block}
 
 \end{column}
