@@ -9,7 +9,8 @@
 
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[size=custom,width=120,height=72,scale=1.0]{beamerposter}
+\usepackage[size=a0,scale=1.0]{beamerposter}
+% \usepackage[size=custom,width=120,height=72,scale=1.0]{beamerposter}
 \usetheme{gemini}
 \usecolortheme{ppposter}
 \usepackage{graphicx}
@@ -68,7 +69,7 @@
 \addtobeamertemplate{headline}{}
 {
     \begin{tikzpicture}[remember picture,overlay]
-    \node [anchor=north east, inner sep=2cm] at ([xshift=1.4cm,yshift=1.4cm]current page.north east)     {\includegraphics[height=6.5cm]{fig/black-flush-UWlogo-print.eps}};
+    \node [anchor=north east, inner sep=2cm] at ([xshift=1.4cm,yshift=1.2cm]current page.north east)     {\includegraphics[height=6.5cm]{fig/black-flush-UWlogo-print.eps}};
     \end{tikzpicture}
 }
 % ====================
@@ -83,9 +84,9 @@
 
 \begin{column}{\colwidth}
   \begin{block}{Overview}
-    \begin{wrapfigure}{R}{.5\textwidth}
+    \begin{wrapfigure}{R}{.40\textwidth}
       \centering
-      \includegraphics[width=0.48\textwidth]{fig/intro_image-figure0.eps}
+      \includegraphics[width=0.38\textwidth]{fig/intro_image-figure0.eps}
       \caption{Current research assumes a $p$-norm decision boundary (grey) on whether an image has been tampered with. The true human decision boundary (green) may be very different.}
       \label{fig:decision_boundary}
     \end{wrapfigure}
@@ -127,7 +128,7 @@
 
     We construct \textbf{$\pm 1$-perturbation directions} as $\bfv\in\R^d$ where
     (i) $\bfv$ has $s>0$ nonzero elements, and
-    (ii) nonzero elements $v_i = 1$ if $v_0,i < 128$ and $=-1$ otherwise.
+    (ii) $v_i = 1$ if $v_0,i < 128$ and $=-1$ otherwise.
 
     It is then possible to extract a new implication, testable without knowledge of $p^*$:
 
@@ -135,17 +136,11 @@
       If two perturbation directions $\bfv_1$, $\bfv_2$ have the same sparsity $s$, the perturbation scales $a_1$, $a_2$ at which humans notice changes must be equal.
     \end{minipage}}
   \end{block}
-\end{column}
 
-\separatorcolumn
-
-\begin{column}{\colwidth}
-
-  \begin{block}{Experimental design}
-    Our three base images were (cat, panda, macaw) from Imagenet. For each image, we generated
-    \begin{itemize}
-      \item Eight rays: specially-crafted $\pm1$-perturbation directions varying in size, number of color channels affected, and shape of perturbed pixels.
-        \begin{center}
+    \begin{block}{Designing Perturbations}
+    Our three $\bfx_0$s were (cat, panda, macaw) from Imagenet. We empirically defined a set of designed perturbations that would showcase inconsistencies in norms, and generated eight of those per $\bfx_0$ (see Table~\ref{tab:rays}), plus two FGSM and PGD adversarial attack rays for each image (with arbitrary target labels).
+    \begin{table}
+        \centering
           \begin{small}
             \begin{tabular}{l|l|l}
               \multicolumn{1}{c|}{\textbf{\# Dimensions Changed (s)}} & \multicolumn{1}{c|}{\textbf{Color Channels Affected}} & \multicolumn{1}{c}{\textbf{Shape of Perturbed Pixels}} \\\hline
@@ -154,11 +149,18 @@
               (mnemonic: garment size) & & Eye = on the eye of the animal \\
             \end{tabular}
           \end{small}
-        \end{center}
+        \caption{$\pm1$-perturbation directions varying in size, number of color channels affected, and shape of perturbed pixels}
+        \label{tab:rays}
+    \end{table}
 
-      \item Two additional rays: adversarial, generated via Fast Gradient Sign Method and Projected Gradient Descent.
-    \end{itemize}
+  \end{block}
+\end{column}
 
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Experimental design}
     68 Amazon Mechanical Turk workers were presented with instructions and then completed a sequence of 34 trials, 30 of which were $\pm1$-perturbation or adversarial trials,
     and 4 of which were "guard trials", with an abrupt change to filter out participants clicking through without performing the task.
 
@@ -175,82 +177,76 @@
     Each trial consisted of stepping along a perturbation ray $\bfv$, using arrow keys or buttons to increment/decrement $a$ by 1.
     The user was instructed to submit immediately when they noticed a difference in the image.
     We saved the final $a$ submitted by the user for each $(\bfx_0, \bfv)$ pair, as well as their path over time to reach that $a$.
-    In $\pm1$-perturbation trials, participants were only allowed to vary $a\in\{0,1,\ldots,128\}$ to avoid value clipping, and encouraged to give up after reaching $a=128$.
-    Note that this produces \emph{right-censored} data.
+    For $\pm1$-perturbation trials, $a$ was constrained $\in\{0,1,\ldots,128\}$ to avoid value clipping. Users were encouraged to "give up" at $a=128$ (producing right-censored data).
 
+  \end{block}
+
+  \begin{block}{Analysis}
+    Since our participants were not ideal observers, we treat the pool of all returned responses for some $(\bfx_0, \bfv)$ pair as a sample.
+\begin{figure}[h]
+  \begin{center}
+    \begin{tabular}{ccc}
+      $p=1,\ \bfx_0=\text{panda}$ & $p=2,\ \bfx_0=\text{macaw}$ & $p=\infty,\ \bfx_0=\text{cat}$ \\
+      \includegraphics[width=0.3\textwidth]{fig/pixel_1_norm_boxplot_panda.eps} &
+      \includegraphics[width=0.3\textwidth]{fig/pixel_2_norm_boxplot_macaw.eps} &
+      \includegraphics[width=0.3\textwidth]{fig/pixel_inf_norm_boxplot_cat.eps} 
+    \end{tabular}
+  \end{center}
+  \caption{Distribution of norms ($p$ varies) over all responses of image changes at the just-noticable point. If the central hypothesis were true, each plot should locally have similar medians (orange lines).}
+  \label{fig:Lp_excerpt}
+\end{figure}
+
+
+    We perform Kolmogorov-Smirnov non-parametric distribution equality tests over these samples to check implications. Let $x_1^{(j)}$ be user $j$'s just-noticeable image along ray $\bfv_1$. Note that $a_1^{(j)} \deq a_2^{(j)}$ corresponds to the strong implication $s_1=s_2\Rightarrow a_1=a_2$.
   \end{block}
 \end{column}
 
 \separatorcolumn
 
 \begin{column}{\colwidth}
+  \begin{block}{Statistical Tests}
+    Testing the weaker implication: \textbf{1, 2, $\infty$-norms do not accurately describe our data.} \\
+    
+    \[H_0 : \norm{\bfx_1^{(j)} - \bfx_0}_p \deq  \norm{\bfx_2^{(j)}}_p\]
+    \begin{table}
+      \centering
+      \begin{tabular}{c | l l l | c}
+        $p$-norm & $\bfx_0$ & $\bfv_1$ & $\bfv_2$ & \textbf{\textit{p}} \\
+        \midrule
+        1 & \texttt{panda} & \texttt{FGSM} & \texttt{M-RGB-Dot} & \num{6.4e-19} \\
+        2 & \texttt{macaw} & \texttt{PGD} & \texttt{X-RGB-Box} & \num{2.6e-16} \\
+        $\infty$ & \texttt{cat} & \texttt{M-RGB-Box} & \texttt{L-RGB-Box} & \num{1.1e-14} \\
+      \end{tabular}
+      \caption{Hypothesis instances and \emph{statistical} $p$-values (2-sample KS test). Note each test uses different $\bfx_0$, $\bfv_1$, $\bfv_2$.}
+    \end{table}
 
-  \begin{block}{Results}
-    Since our participants were not ideal observers, we treat the pool of all returned responses for some $(\bfx_0, \bfv)$ pair as a sample.
+    Testing the stronger implication: \textbf{no $p$-norm accurately fits the human responses.}
+
+    \[H_0 : a_1^{(j)} \deq a_2^{(j)}\]
+    \begin{table}
+      \centering
+      \begin{tabular}{l l l | c}
+        $\bfx_0$ & $\bfv_1$ & $\bfv_2$ & \textbf{\textit{p}} \\
+        \midrule
+        \texttt{cat} & \texttt{M-Red-Dot} & \texttt{M-Red-Eye} & \num{9.5e-6} \\
+        \texttt{panda} & \texttt{M-Red-Dot} & \texttt{M-RGB-Dot} & \num{2.1e-4} \\
+      \end{tabular}
+      \caption{Hypothesis instances and \emph{statistical} $p$-values (2-sample KS test).}
+    \end{table}
+
     \begin{figure}
-      \begin{center}
-        \begin{tabular}{ccc}
-          $p=1,\ \bfx_0=\text{panda}$ & $p=2,\ \bfx_0=\text{macaw}$ & $p=\infty,\ \bfx_0=\text{cat}$ \\
-          \includegraphics[width=0.3\textwidth]{fig/pixel_1_norm_boxplot_panda.eps} &
-          \includegraphics[width=0.3\textwidth]{fig/pixel_2_norm_boxplot_macaw.eps} &
-          \includegraphics[width=0.3\textwidth]{fig/pixel_inf_norm_boxplot_cat.eps}
-        \end{tabular}
-      \end{center}
-      \caption{Pixel norm $\|\bfx-\bfx_0\|_p$ for collected data samples. If the central hypothesis were true, one expects similar medians (orange lines) within each plot.}
-      \label{fig:Lp_excerpt}
+      \centering
+      \includegraphics{fig/best_p_approx2.eps}
+      \caption{Variability of fit to human data for various measures (lower is better).}
+      \label{fig:fit}
     \end{figure}
 
-    We perform hypothesis tests on the implications over these samples, using the Kolmogorov-Smirnov non-parametric test. $x_1^{(j)}$ is the first noticeably modified image using perturbation direction $\bfv_1$ and according to participant $j$. Note that similar distributions on $a_1^{(j)}$, $a_2^{(j)}$ correspond to the implication itself, $s_1=s_2\Rightarrow a_1=a_2$.
 
-    \begin{minipage}{0.47\textwidth}
-    Testing the weaker implication:\\ \textbf{1, 2, $\infty$-norms do not accurately describe our data.}
-    \begin{table}
-      \centering
-      \begin{tabular}{l l l l}
-        \toprule
-        \textbf{H\textsubscript{0}} & & & \textbf{\textit{p}} \\
-        \midrule
-        $\norm{\bfx_1^{(j)} - \bfx_0}_1$ &$\deq$ & $\norm{\bfx_2^{(j)} - \bfx_0}_1$ & \num{6.4e-19} \\
-        $\norm{\bfx_1^{(j)} - \bfx_0}_2$ &$\deq$ & $\norm{\bfx_2^{(j)} - \bfx_0}_2$ & \num{2.6e-16} \\
-        $\norm{\bfx_1^{(j)} - \bfx_0}_\infty$ &$\deq$ &$\norm{\bfx_2^{(j)} - \bfx_0}_\infty$ & \num{1.1e-14} \\
-      \end{tabular}
-      \caption{Test hypotheses and $p$ values. Note that each test uses different $\bfx_0$, $\bfv_1$, $\bfv_2$.}
-    \end{table}\end{minipage}\hspace*{0.06\textwidth}\begin{minipage}{0.47\textwidth}
-    Testing the stronger implication:\\ \textbf{no $p$-norm accurately fits the human responses.}
-    \begin{table}
-      \centering
-      \begin{tabular}{l l}
-        \toprule
-        \textbf{H\textsubscript{0}} & \textbf{\textit{p}} \\
-        \midrule
-        $a_1^{(j)} \deq a_2^{(j)}$  ($\bfx_0 = \text{cat}$, $\bfv_1$, $\bfv_2$ M-Red-Dot, M-Red-Eye) & \num{6.4e-19} \\
-      \end{tabular}
-      \caption{Test hypotheses and $p$ values (strong implication)}
-    \end{table}
-    \end{minipage}
+    In Fig~\ref{fig:fit}, results from several other distance measures ($p$-norm on a neural-network derived representation of the image, SSIM structural similarity, and earthmover's distance) are shown against pixel $p$-norms for various values of $p$.
+
   \end{block}
 
   \begin{alertblock}{Conclusion}
-
-    Class aptent taciti sociosqu ad litora torquent per conubia nostra, per
-    inceptos himenaeos. Phasellus libero enim, gravida sed erat sit amet,
-    scelerisque congue diam. Fusce dapibus dui ut augue pulvinar iaculis.
-
-
-
-    Donec quis posuere ligula. Nunc feugiat elit a mi malesuada consequat. Sed
-    imperdiet augue ac nibh aliquet tristique. Aenean eu tortor vulputate,
-    eleifend lorem in, dictum urna. Proin auctor ante in augue tincidunt
-    tempor. Proin pellentesque vulputate odio, ac gravida nulla posuere
-    efficitur. Aenean at velit vel dolor blandit molestie. Mauris laoreet
-    commodo quam, non luctus nibh ullamcorper in. Class aptent taciti sociosqu
-    ad litora torquent per conubia nostra, per inceptos himenaeos.
-
-    Nulla varius finibus volutpat. Mauris molestie lorem tincidunt, iaculis
-    libero at, gravida ante. Phasellus at felis eu neque suscipit suscipit.
-    Integer ullamcorper, dui nec pretium ornare, urna dolor consequat libero,
-    in feugiat elit lorem euismod lacus. Pellentesque sit amet dolor mollis,
-    auctor urna non, tempus sem.
 
   \end{alertblock}
 
