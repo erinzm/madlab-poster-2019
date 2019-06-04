@@ -22,6 +22,7 @@
 \usepackage{xcolor}
 \usepackage{siunitx}
 \usepackage{wrapfig}
+\usepackage{tabularx}
 \usepackage{bm}
 \setbeamertemplate{theorems}[numbered] % to number
 
@@ -102,7 +103,7 @@
   \begin{alertblock}{The current assumption}
     An image $\bfx_0$ sits in a pixel feature space $\X = \{0,\ldots,255\}^d$, where $d$ = $\text{\# pixels} \times \text{\# color channels}$ (assuming a color depth of 255).
 
-    An adversarial attack perturbs this $\bfx_0$ into $\bfx$. Currently, the \textbf{general assumption} in adversarial image attacks is that:
+    An adversarial attack perturbs this $\bfx_0$ into $\bfx$. Nearly all adversarial ML work on images assumes that:
 
     \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
       There exists some global $p>0$ and some $r$ (dependent on $\bfx_0$) where the observer perceives all $\bfx$ as visually identical to $\bfx_0$ as long as $\norm{\bfx_0-\bfx}_p < r(x_0)$ is satisfied.
@@ -137,7 +138,7 @@
     \end{minipage}}
   \end{block}
 
-    \begin{block}{Designing Perturbations}
+    \begin{block}{Designing perturbations}
     Our three $\bfx_0$s were (cat, panda, macaw) from Imagenet. We empirically defined a set of designed perturbations that would showcase inconsistencies in norms, and generated eight of those per $\bfx_0$ (see Table~\ref{tab:rays}), plus two FGSM and PGD adversarial attack rays for each image (with arbitrary target labels).
     \begin{table}
         \centering
@@ -149,7 +150,7 @@
               (mnemonic: garment size) & & Eye = on the eye of the animal \\
             \end{tabular}
           \end{small}
-        \caption{$\pm1$-perturbation directions varying in size, number of color channels affected, and shape of perturbed pixels}
+        \caption{$\pm1$-perturbation directions varying in size, number of color channels affected, and shape of perturbed pixels. Examples are given in Figure~\ref{fig:perturbs}.}
         \label{tab:rays}
     \end{table}
 
@@ -160,9 +161,44 @@
 
 \begin{column}{\colwidth}
 
-  \begin{block}{Experimental design}
-    68 Amazon Mechanical Turk workers were presented with instructions and then completed a sequence of 34 trials, 30 of which were $\pm1$-perturbation or adversarial trials,
-    and 4 of which were "guard trials", with an abrupt change to filter out participants clicking through without performing the task.
+  \begin{block}{Experimental procedure}
+    \begin{figure}
+    \begin{tabular}{ccc}
+      \begin{tikzpicture}[baseline]
+      \node [inner sep=0] (img) {\includegraphics[width=0.27\textwidth]{fig/panda_M_Red_Dot_128.png}};
+      \node [black, below right] at (img.south west) {\ttfamily M-Red-Dot};
+      \end{tikzpicture}
+      &
+      \begin{tikzpicture}[baseline]
+      \node [inner sep=0] (img) {\includegraphics[width=0.27\textwidth]{fig/cat_M_RGB_Dot_128.png}};
+      \node [black, below right] at (img.south west) {\ttfamily M-RGB-Dot};
+      \end{tikzpicture}
+      &
+      \begin{tikzpicture}[baseline]
+      \node [inner sep=0] (img) {\includegraphics[width=.27\textwidth]{fig/cat_M_RGB_Box_128.png}};
+      \node [black, below right] at (img.south west) {\ttfamily M-RGB-Box};
+      \end{tikzpicture} \\
+      \begin{tikzpicture}[baseline]
+      \node [inner sep=0] (img) {\includegraphics[width=.27\textwidth]{fig/cat_L_RGB_Box_128.png}};
+      \node [black, below right] at (img.south west) {\ttfamily L-RGB-Box};
+      \end{tikzpicture}
+      &
+      \begin{tikzpicture}[baseline]
+      \node [inner sep=0] (img) {\includegraphics[width=.27\textwidth]{fig/panda_M_Red_Eye_128.png}};
+      \node [black, below right] at (img.south west) {\ttfamily M-Red-Eye};
+      \end{tikzpicture}
+      &
+      \begin{tikzpicture}[baseline]
+      \node [inner sep=0] (img) {\includegraphics[width=.27\textwidth]{fig/macaw_fgsm_128.png}};
+      \node [black, below right] at (img.south west) {\ttfamily FGSM};
+      \end{tikzpicture} \\
+    \end{tabular}
+   \caption{$\bfx$s for selected $\bfv$ with severe perturbation scale $a=128$.}
+  \label{fig:perturbs}
+\end{figure}
+
+    68 Amazon Mechanical Turk workers were presented with instructions and then completed a sequence of 34 trials, 30 of which were $\pm1$-perturbation (randomly selected per user session) or adversarial trials,
+    and 4 of which were "guard trials", with an abrupt change to a noisy image at $a=20$ to filter out participants clicking through without performing the task.
 
     \begin{figure}
       \centering
@@ -174,14 +210,14 @@
       \label{fig:temporal}
     \end{figure}
 
-    Each trial consisted of stepping along a perturbation ray $\bfv$, using arrow keys or buttons to increment/decrement $a$ by 1.
-    The user was instructed to submit immediately when they noticed a difference in the image.
+    During trials, users viewed images along $\bfv$, adjusting $a$ with buttons/keyboard.
+    We instructed users to submit after noticing a difference in the image.
     We saved the final $a$ submitted by the user for each $(\bfx_0, \bfv)$ pair, as well as their path over time to reach that $a$.
     For $\pm1$-perturbation trials, $a$ was constrained $\in\{0,1,\ldots,128\}$ to avoid value clipping. Users were encouraged to "give up" at $a=128$ (producing right-censored data).
 
   \end{block}
 
-  \begin{block}{Analysis}
+  \begin{block}{Data summary}
     Since our participants were not ideal observers, we treat the pool of all returned responses for some $(\bfx_0, \bfv)$ pair as a sample.
 \begin{figure}[h]
   \begin{center}
@@ -189,25 +225,26 @@
       $p=1,\ \bfx_0=\text{panda}$ & $p=2,\ \bfx_0=\text{macaw}$ & $p=\infty,\ \bfx_0=\text{cat}$ \\
       \includegraphics[width=0.3\textwidth]{fig/pixel_1_norm_boxplot_panda.eps} &
       \includegraphics[width=0.3\textwidth]{fig/pixel_2_norm_boxplot_macaw.eps} &
-      \includegraphics[width=0.3\textwidth]{fig/pixel_inf_norm_boxplot_cat.eps} 
+      \includegraphics[width=0.3\textwidth]{fig/pixel_inf_norm_boxplot_cat.eps}
     \end{tabular}
   \end{center}
-  \caption{Distribution of norms ($p$ varies) over all responses of image changes at the just-noticable point. If the central hypothesis were true, each plot should locally have similar medians (orange lines).}
+  \caption{Distribution of norms ($p$ varies) over all responses of image changes at the just-noticeable point. If the central hypothesis were true, each plot should locally have similar medians (orange lines).}
   \label{fig:Lp_excerpt}
 \end{figure}
-
-
-    We perform Kolmogorov-Smirnov non-parametric distribution equality tests over these samples to check implications. Let $x_1^{(j)}$ be user $j$'s just-noticeable image along ray $\bfv_1$. Note that $a_1^{(j)} \deq a_2^{(j)}$ corresponds to the strong implication $s_1=s_2\Rightarrow a_1=a_2$.
   \end{block}
 \end{column}
 
 \separatorcolumn
 
 \begin{column}{\colwidth}
-  \begin{block}{Statistical Tests}
-    Testing the weaker implication: \textbf{1, 2, $\infty$-norms do not accurately describe our data.} \\
-    
-    \[H_0 : \norm{\bfx_1^{(j)} - \bfx_0}_p \deq  \norm{\bfx_2^{(j)}}_p\]
+  \begin{block}{Statistical tests}
+    Let $x_1^{(j)}$ be user $j$'s just-noticeable image along ray $\bfv_1$; over all $j$, this forms a distribution. We performed Kolmogorov-Smirnov tests on transformations of these samples to test our hypotheses. Note that $a_1^{(j)} \deq a_2^{(j)}$ corresponds to the strong implication $s_1=s_2\Rightarrow a_1=a_2$.
+
+    \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
+    \begin{center}
+      \textbf{Weak implication: \(H_0 : \norm{\bfx_1^{(j)} - \bfx_0}_p \deq  \norm{\bfx_2^{(j)}}_p\)}
+    \end{center}
+    \end{minipage}}
     \begin{table}
       \centering
       \begin{tabular}{c | l l l | c}
@@ -217,12 +254,19 @@
         2 & \texttt{macaw} & \texttt{PGD} & \texttt{X-RGB-Box} & \num{2.6e-16} \\
         $\infty$ & \texttt{cat} & \texttt{M-RGB-Box} & \texttt{L-RGB-Box} & \num{1.1e-14} \\
       \end{tabular}
-      \caption{Hypothesis instances and \emph{statistical} $p$-values (2-sample KS test). Note each test uses different $\bfx_0$, $\bfv_1$, $\bfv_2$.}
+      \caption{Hypothesis instances and \emph{statistical} \textbf{\textit{p}}-values (2-sample KS test). Note each test uses different $\bfx_0$, $\bfv_1$, $\bfv_2$.}
     \end{table}
+    \vspace{-1.3em}
+    \begin{center}
+    \Rightarrow \textbf{1, 2, $\infty$-norms do not accurately describe our data.}
+    \end{center}
+    \vspace{.3em}
 
-    Testing the stronger implication: \textbf{no $p$-norm accurately fits the human responses.}
-
-    \[H_0 : a_1^{(j)} \deq a_2^{(j)}\]
+    \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
+    \begin{center}
+    \textbf{Strong implication: \(H_0 : a_1^{(j)} \deq a_2^{(j)}\)}
+    \end{center}
+    \end{minipage}}
     \begin{table}
       \centering
       \begin{tabular}{l l l | c}
@@ -231,23 +275,29 @@
         \texttt{cat} & \texttt{M-Red-Dot} & \texttt{M-Red-Eye} & \num{9.5e-6} \\
         \texttt{panda} & \texttt{M-Red-Dot} & \texttt{M-RGB-Dot} & \num{2.1e-4} \\
       \end{tabular}
-      \caption{Hypothesis instances and \emph{statistical} $p$-values (2-sample KS test).}
+      \caption{Hypothesis instances and \emph{statistical} \textbf{\textit{p}}-values (2-sample KS test).}
     \end{table}
+    \vspace{-1.3em}
+    \begin{center}
+    \Rightarrow \textbf{no $p$-norm accurately fits the human responses.}
+    \end{center}
 
+    Also tested: SSIM structural similarity, Earthmover's Distance, and 2-norm of Inception V3 hidden layer activations; none of these fit the data well (\textbf{\textit{p}} = $\num{6.4e-19},\;\num{1.1e-9},\;\num{2.1e-12}$, respectively).
+
+    No tested measures were supported as \emph{correct}, but finding the \emph{closest} one may be a useful approximation.
+    In Figure~\ref{fig:fit}, a range of $p$-norms and additional measures are evaluated; the $3$-norm is the best approximation of human judgement.
     \begin{figure}
       \centering
-      \includegraphics{fig/best_p_approx2.eps}
+      \includegraphics[width=.7\textwidth]{fig/best_p_approx.eps}
       \caption{Variability of fit to human data for various measures (lower is better).}
       \label{fig:fit}
     \end{figure}
 
 
-    In Fig~\ref{fig:fit}, results from several other distance measures ($p$-norm on a neural-network derived representation of the image, SSIM structural similarity, and earthmover's distance) are shown against pixel $p$-norms for various values of $p$.
-
   \end{block}
 
   \begin{alertblock}{Conclusion}
-
+    \textbf{The current assumption in adversarial ML -- $p$-norms accurately representing human judgement of "tampering" -- is likely false (at least for images)}. Pixel-space $3$-norm is the closest approximation we found, but still has significant variability from true human judgement. Future work is needed to \emph{identify} alternative measures of cognitive response to image distortion, and to generalize our work to other domains, \textit{eg.} audio and text.
   \end{alertblock}
 
   \begin{block}{References}
