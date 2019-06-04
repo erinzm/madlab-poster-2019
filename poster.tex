@@ -285,7 +285,7 @@
     Also tested: SSIM structural similarity, Earthmover's Distance, and 2-norm of Inception V3 hidden layer activations; none of these fit the data well (\textbf{\textit{p}} = $\num{6.4e-19},\;\num{1.1e-9},\;\num{2.1e-12}$, respectively).
 
     No tested measures were supported as \emph{correct}, but finding the \emph{closest} one may be a useful approximation.
-    In Figure~\ref{fig:fit}, a range of $p$-norms and additional measures are evaluated; the $3$-norm is the best approximation of human judgement.
+    In Figure~\ref{fig:fit}, a range of $p$-norms and additional measures are evaluated; the $3$-norm is the best approximation of human judgment.
     \begin{figure}
       \centering
       \includegraphics[width=.7\textwidth]{fig/best_p_approx.eps}
@@ -297,7 +297,7 @@
   \end{block}
 
   \begin{alertblock}{Conclusion}
-    \textbf{The current assumption in adversarial ML -- $p$-norms accurately representing human judgement of "tampering" -- is likely false (at least for images)}. Pixel-space $3$-norm is the closest approximation we found, but still has significant variability from true human judgement. Future work is needed to \emph{identify} alternative measures of cognitive response to image distortion, and to generalize our work to other domains, \textit{eg.} audio and text.
+    \textbf{The current assumption in adversarial ML -- $p$-norms accurately representing human judgment of "tampering" -- is likely false (at least for images)}. Pixel-space $3$-norm is the closest approximation we found, but still has significant variability from true human judgment. Future work is needed to \emph{identify} alternative measures of cognitive response to image distortion, and to generalize our work to other domains, \textit{eg.} audio and text.
   \end{alertblock}
 
   \begin{block}{References}
