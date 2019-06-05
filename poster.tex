@@ -95,7 +95,8 @@
 
     Throughout the literature on attacking image classifiers, the \emph{visibility} of attacks to a human observer (who might become \emph{suspicious}, which we wish to avoid) is typically gauged (without adequate justification) by a $p$-norm of the difference between the original and modified image.
 
-    Via behavioral experiments, we show~\cite{sen2019perception} that \textbf{human perception of image modifications is not well-described by \emph{any} $p$-norm, nor several alternative measures}.
+    Via behavioral experiments, we show~\cite{sen2019perception} that \textbf{human perception of image modifications is not well-described by \emph{any} $p$-norm,
+    nor several alternative measures (SSIM, EMD, $p$-norm of DNN representation)}.
     This has significant impact on adversarial ML research; the robustness of attacks to human inspection relies on an accurate understanding of \emph{what humans will and will not see as "tampering"}.
 
   \end{block}
@@ -297,7 +298,8 @@
   \end{block}
 
   \begin{alertblock}{Conclusion}
-    \textbf{The current assumption in adversarial ML -- $p$-norms accurately representing human judgment of "tampering" -- is likely false (at least for images)}. Pixel-space $3$-norm is the closest approximation we found, but still has significant variability from true human judgment. Future work is needed to \emph{identify} alternative measures of cognitive response to image distortion, and to generalize our work to other domains, \textit{eg.} audio and text.
+    \textbf{The current assumption in adversarial ML -- $p$-norms accurately representing human judgment of "tampering" -- is likely false (at least for images)}.
+    Among tested measures (pixel $p$-norms, SSIM, EMD, and DNN $2$-norm), pixel $3$-norms are the closest approximation to human judgment, but still have significant variance from it. Future work is needed to \emph{identify} alternative measures of cognitive response to image distortion, and to \emph{generalize} our work to other domains, \textit{eg.} audio and text.
   \end{alertblock}
 
   \begin{block}{References}
