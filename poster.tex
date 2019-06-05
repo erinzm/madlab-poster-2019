@@ -107,17 +107,17 @@
     An adversarial attack perturbs this $\bfx_0$ into $\bfx$. Nearly all adversarial ML work on images assumes that:
 
     \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
-      There exists some global $p>0$ and some $r$ (dependent on $\bfx_0$) where the observer perceives all $\bfx$ as visually identical to $\bfx_0$ as long as $\norm{\bfx_0-\bfx}_p < r(x_0)$ is satisfied.
+      \textbf{Implication 1:} There exists some global $p>0$ and some $r$ (dependent on $\bfx_0$) where the observer perceives all $\bfx$ as visually identical to $\bfx_0$ as long as $\norm{\bfx_0-\bfx}_p < r(x_0)$ is satisfied.
     \end{minipage}}
 
     We refute this assumption via \emph{testable implications}.
   \end{alertblock}
 
-  \begin{block}{A weak implication}
+  \begin{block}{An implication}
     We define $J(\bfx_0) = \{\bfx \subset \X : \norm{\bfx_0-\bfx}_p = r(\bfx_0)\}$ as the set of all images just-noticeably-different from the base image $\bfx_0$.
 
     \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
-      Supposing $p^*$ is the true value of $p$, for any pair of $\bfx_1$, $\bfx_2$ $\in J(\bfx_0)$, $\norm{\bfx_1-\bfx_0}_{p^*} = \norm{\bfx_2-\bfx_0}_{p^*}$.
+      \textbf{Implication 2:} Supposing $p^*$ is the true value of $p$, for any pair of $\bfx_1$, $\bfx_2$ $\in J(\bfx_0)$, $\norm{\bfx_1-\bfx_0}_{p^*} = \norm{\bfx_2-\bfx_0}_{p^*}$.
     \end{minipage}}
 
     We can ask humans when they 'just notice' changes to an image and compare these judgments across $\bfx_1$, $\bfx_2$ pairs, but this implication is still \emph{weak} as a statistical test; it \emph{requires knowledge of the true $p^*$}.
@@ -243,7 +243,7 @@
 
     \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
     \begin{center}
-      \textbf{Weak implication: \(H_0 : \norm{\bfx_1^{(j)} - \bfx_0}_p \deq  \norm{\bfx_2^{(j)}}_p\)}
+      \textbf{Implication 1: \(H_0 : \norm{\bfx_1^{(j)} - \bfx_0}_p \deq  \norm{\bfx_2^{(j)} - \bfx_0}_p\)}
     \end{center}
     \end{minipage}}
     \begin{table}
@@ -265,7 +265,7 @@
 
     \hspace*{.1\linewidth}\colorbox{highlightbg}{\begin{minipage}{.8\linewidth}
     \begin{center}
-    \textbf{Strong implication: \(H_0 : a_1^{(j)} \deq a_2^{(j)}\)}
+    \textbf{Implication 2: \(H_0 : a_1^{(j)} \deq a_2^{(j)}\)}
     \end{center}
     \end{minipage}}
     \begin{table}
